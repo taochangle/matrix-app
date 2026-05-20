@@ -1,0 +1,21 @@
+{
+    "name": "matrix/app",
+    "type": "project",
+    "description": "Matrix application scaffold",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.1",
+        "matrix/framework": "*@dev"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../matrix-framework"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    }
+}

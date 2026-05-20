@@ -20,7 +20,7 @@ Visit `http://localhost:8000/`.
 git clone https://github.com/taochangle/matrix-app.git my-project
 cd my-project
 composer install
-php -S 0.0.0.0:8000 -t public
+./matrix serve
 ```
 
 ## Documentation

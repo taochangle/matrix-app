@@ -1,16 +1,16 @@
 {
-    "name": "matrix/app",
+    "name": "taochangle/matrix-app",
     "type": "project",
     "description": "Matrix application scaffold",
     "license": "MIT",
     "require": {
         "php": ">=8.1",
-        "matrix/framework": "*@dev"
+        "taochangle/matrix-framework": "*@dev"
     },
     "repositories": [
         {
-            "type": "path",
-            "url": "../matrix-framework"
+            "type": "vcs",
+            "url": "https://github.com/taochangle/matrix-fragework.git"
         }
     ],
     "autoload": {

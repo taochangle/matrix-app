@@ -1,0 +1,121 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Matrix\Application;
+use Matrix\Console\Console;
+
+$app = new Application();
+$console = new Console($app);
+
+// serve — 启动开发服务器
+$console->register('serve', function (array $args) {
+    $host = $args[0] ?? '0.0.0.0';
+    $port = $args[1] ?? '8000';
+    $docroot = $args[2] ?? 'public';
+
+    printf("Matrix 开发服务器已启动: http://%s:%s\n", $host, $port);
+    passthru(sprintf('php -S %s:%s -t %s', escapeshellarg($host), escapeshellarg($port), escapeshellarg($docroot)));
+    return 0;
+}, '启动开发服务器 [host] [port] [docroot]');
+
+// make:controller — 生成控制器
+$console->register('make:controller', function (array $args) {
+    $name = $args[0] ?? null;
+    if (!$name) {
+        echo "用法: ./matrix make:controller <Name>\n";
+        return 1;
+    }
+
+    $namespace = 'App\\Controllers';
+    $dir = __DIR__ . '/app/Controllers';
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+
+    $file = $dir . '/' . $name . '.php';
+    if (file_exists($file)) {
+        echo "控制器已存在: {$file}\n";
+        return 1;
+    }
+
+    $stub = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace {$namespace};
+
+use Matrix\\Http\\Request;
+use Matrix\\Http\\Response;
+
+class {$name}
+{
+    public function index(Request \$request): Response
+    {
+        return Response::json(['message' => 'Hello from {$name}!']);
+    }
+}
+PHP;
+
+    file_put_contents($file, $stub);
+    echo "控制器已创建: app/Controllers/{$name}.php\n";
+    return 0;
+}, '创建控制器 make:controller <Name>');
+
+// make:middleware — 生成中间件
+$console->register('make:middleware', function (array $args) {
+    $name = $args[0] ?? null;
+    if (!$name) {
+        echo "用法: ./matrix make:middleware <Name>\n";
+        return 1;
+    }
+
+    $namespace = 'App\\Middlewares';
+    $dir = __DIR__ . '/app/Middlewares';
+    if (!is_dir($dir)) {
+        mkdir($dir, 0755, true);
+    }
+
+    $file = $dir . '/' . $name . '.php';
+    if (file_exists($file)) {
+        echo "中间件已存在: {$file}\n";
+        return 1;
+    }
+
+    $stub = <<<PHP
+<?php
+
+declare(strict_types=1);
+
+namespace {$namespace};
+
+use Closure;
+use Matrix\\Http\\Request;
+use Matrix\\Http\\Response;
+
+class {$name}
+{
+    public function __invoke(Request \$request, Closure \$next): Response
+    {
+        // 请求前
+
+        /** @var Response \$response */
+        \$response = \$next(\$request);
+
+        // 响应后
+
+        return \$response;
+    }
+}
+PHP;
+
+    file_put_contents($file, $stub);
+    echo "中间件已创建: app/Middlewares/{$name}.php\n";
+    return 0;
+}, '创建中间件 make:middleware <Name>');
+
+exit($console->run($argv));

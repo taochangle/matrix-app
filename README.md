@@ -4,6 +4,18 @@ Application scaffold for the Matrix framework.
 
 ## Quick Start
 
+### Docker (recommended)
+
+```bash
+git clone https://github.com/taochangle/matrix-app.git my-project
+cd my-project
+docker compose up -d
+```
+
+Visit `http://localhost:8000/`.
+
+### Manual
+
 ```bash
 git clone https://github.com/taochangle/matrix-app.git my-project
 cd my-project
@@ -11,11 +23,18 @@ composer install
 php -S 0.0.0.0:8000 -t public
 ```
 
-Visit `http://localhost:8000/`.
-
 ## Documentation
 
 Full documentation at [taochangle.github.io/matrix-doc](https://taochangle.github.io/matrix-doc/).
+
+## CLI Commands
+
+```bash
+./matrix serve                    # Start dev server (default for Docker)
+./matrix make:controller User     # Generate a controller
+./matrix make:middleware Auth     # Generate a middleware
+./matrix help                     # List all commands
+```
 
 ## Project Structure
 
@@ -29,6 +48,8 @@ Full documentation at [taochangle.github.io/matrix-doc](https://taochangle.githu
 ├── routes/
 │   └── web.php           # Route definitions
 ├── vendor/               # Dependencies (auto-installed)
+├── Dockerfile
+├── docker-compose.yml
 └── composer.json
 ```
 

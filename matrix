@@ -11,26 +11,39 @@ use Matrix\Console\Console;
 $app = new Application();
 $console = new Console($app);
 
-// serve — 启动开发服务器
+// serve
 $console->register('serve', function (array $args) {
     $host = $args[0] ?? '0.0.0.0';
     $port = $args[1] ?? '8000';
     $docroot = $args[2] ?? 'public';
 
-    printf("Matrix 开发服务器已启动: http://%s:%s\n", $host, $port);
-    passthru(sprintf('php -S %s:%s -t %s', escapeshellarg($host), escapeshellarg($port), escapeshellarg($docroot)));
+    printf("Matrix dev server: http://%s:%s\n", $host, $port);
+    passthru(sprintf(
+        'php -S %s:%s -t %s %s/router.php',
+        escapeshellarg($host),
+        escapeshellarg($port),
+        escapeshellarg($docroot),
+        escapeshellarg($docroot)
+    ));
     return 0;
-}, '启动开发服务器 [host] [port] [docroot]');
+}, 'Start dev server [host] [port] [docroot]');
 
-// make:controller — 生成控制器
+// migrate
+$console->register('migrate', function (array $args) {
+    $phinx = __DIR__ . '/vendor/bin/phinx';
+    $config = __DIR__ . '/config/phinx.php';
+    passthru(sprintf('%s migrate -c %s', escapeshellcmd($phinx), escapeshellarg($config)));
+    return 0;
+}, 'Run database migrations');
+
+// make:controller
 $console->register('make:controller', function (array $args) {
     $name = $args[0] ?? null;
     if (!$name) {
-        echo "用法: ./matrix make:controller <Name>\n";
+        echo "Usage: ./matrix make:controller <Name>\n";
         return 1;
     }
 
-    $namespace = 'App\\Controllers';
     $dir = __DIR__ . '/app/Controllers';
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
@@ -38,7 +51,7 @@ $console->register('make:controller', function (array $args) {
 
     $file = $dir . '/' . $name . '.php';
     if (file_exists($file)) {
-        echo "控制器已存在: {$file}\n";
+        echo "Controller already exists: {$file}\n";
         return 1;
     }
 
@@ -47,34 +60,34 @@ $console->register('make:controller', function (array $args) {
 
 declare(strict_types=1);
 
-namespace {$namespace};
+namespace App\Controllers;
 
-use Matrix\\Http\\Request;
-use Matrix\\Http\\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class {$name}
 {
     public function index(Request \$request): Response
     {
-        return Response::json(['message' => 'Hello from {$name}!']);
+        return new JsonResponse(['message' => 'Hello from {$name}!']);
     }
 }
 PHP;
 
     file_put_contents($file, $stub);
-    echo "控制器已创建: app/Controllers/{$name}.php\n";
+    echo "Controller created: app/Controllers/{$name}.php\n";
     return 0;
-}, '创建控制器 make:controller <Name>');
+}, 'Create controller make:controller <Name>');
 
-// make:middleware — 生成中间件
+// make:middleware
 $console->register('make:middleware', function (array $args) {
     $name = $args[0] ?? null;
     if (!$name) {
-        echo "用法: ./matrix make:middleware <Name>\n";
+        echo "Usage: ./matrix make:middleware <Name>\n";
         return 1;
     }
 
-    $namespace = 'App\\Middlewares';
     $dir = __DIR__ . '/app/Middlewares';
     if (!is_dir($dir)) {
         mkdir($dir, 0755, true);
@@ -82,7 +95,7 @@ $console->register('make:middleware', function (array $args) {
 
     $file = $dir . '/' . $name . '.php';
     if (file_exists($file)) {
-        echo "中间件已存在: {$file}\n";
+        echo "Middleware already exists: {$file}\n";
         return 1;
     }
 
@@ -91,22 +104,22 @@ $console->register('make:middleware', function (array $args) {
 
 declare(strict_types=1);
 
-namespace {$namespace};
+namespace App\Middlewares;
 
 use Closure;
-use Matrix\\Http\\Request;
-use Matrix\\Http\\Response;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class {$name}
 {
     public function __invoke(Request \$request, Closure \$next): Response
     {
-        // 请求前
+        // before
 
         /** @var Response \$response */
         \$response = \$next(\$request);
 
-        // 响应后
+        // after
 
         return \$response;
     }
@@ -114,8 +127,8 @@ class {$name}
 PHP;
 
     file_put_contents($file, $stub);
-    echo "中间件已创建: app/Middlewares/{$name}.php\n";
+    echo "Middleware created: app/Middlewares/{$name}.php\n";
     return 0;
-}, '创建中间件 make:middleware <Name>');
+}, 'Create middleware make:middleware <Name>');
 
 exit($console->run($argv));

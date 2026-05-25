@@ -8,7 +8,7 @@ require __DIR__ . '/vendor/autoload.php';
 use Matrix\Application;
 use Matrix\Console\Console;
 
-$app = new Application();
+$app = new Application(['debug' => false]);
 $console = new Console($app);
 
 // serve
@@ -18,13 +18,7 @@ $console->register('serve', function (array $args) {
     $docroot = $args[2] ?? 'public';
 
     printf("Matrix dev server: http://%s:%s\n", $host, $port);
-    passthru(sprintf(
-        'php -S %s:%s -t %s %s/router.php',
-        escapeshellarg($host),
-        escapeshellarg($port),
-        escapeshellarg($docroot),
-        escapeshellarg($docroot)
-    ));
+    passthru(sprintf('php -S %s:%s -t %s %s/router.php', escapeshellarg($host), escapeshellarg($port), escapeshellarg($docroot), escapeshellarg($docroot)));
     return 0;
 }, 'Start dev server [host] [port] [docroot]');
 
@@ -35,6 +29,19 @@ $console->register('migrate', function (array $args) {
     passthru(sprintf('%s migrate -c %s', escapeshellcmd($phinx), escapeshellarg($config)));
     return 0;
 }, 'Run database migrations');
+
+// make:migration
+$console->register('make:migration', function (array $args) {
+    $name = $args[0] ?? null;
+    if (!$name) {
+        echo "Usage: ./matrix make:migration <Name>\n";
+        return 1;
+    }
+    $phinx = __DIR__ . '/vendor/bin/phinx';
+    $config = __DIR__ . '/config/phinx.php';
+    passthru(sprintf('%s create %s -c %s', escapeshellcmd($phinx), escapeshellarg($name), escapeshellarg($config)));
+    return 0;
+}, 'Create migration make:migration <Name>');
 
 // make:controller
 $console->register('make:controller', function (array $args) {

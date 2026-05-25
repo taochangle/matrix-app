@@ -5,8 +5,7 @@
     "license": "MIT",
     "require": {
         "php": ">=8.1",
-        "taochangle/matrix-framework": "*@dev",
-        "maximebf/debugbar": "^1.18"
+        "taochangle/matrix-framework": "^2.0"
     },
     "repositories": [
         {

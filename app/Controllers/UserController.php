@@ -29,9 +29,9 @@ class UserController
 
         $debugBar['messages']->info('查询完成，共 ' . count($users) . ' 条记录');
 
-        $debugBar['time']->start('json_encode_users');
+        $debugBar['time']->startMeasure('json_encode_users');
         $data = ['code' => 0, 'data' => $users, 'auth_user' => $authUser];
-        $debugBar['time']->stop('json_encode_users');
+        $debugBar['time']->stopMeasure('json_encode_users');
 
         return new JsonResponse($data);
     }
